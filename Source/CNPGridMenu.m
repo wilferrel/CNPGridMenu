@@ -11,9 +11,9 @@
 #import <float.h>
 #import <Accelerate/Accelerate.h>
 
-#define CNP_IS_IOS8    ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+#define CNP_IS_IOS8 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
 
-@protocol CNPGridMenuButtonDelegate <NSObject>
+@protocol CNPGridMenuButtonDelegate<NSObject>
 
 - (void)didTapOnGridMenuItem:(CNPGridMenuItem *)item;
 
@@ -33,14 +33,14 @@
 
 @interface CNPGridMenuCell : UICollectionViewCell
 
-@property (nonatomic, strong) CNPGridMenuItem *menuItem;
-@property (nonatomic, strong) UILabel *titleLabel;
-@property (nonatomic, strong) UIButton *circleButton;
-@property (nonatomic, strong) UIImageView *iconView;
-@property (nonatomic, strong) UIView *vibrancyView;
-@property (nonatomic, assign) CNPBlurEffectStyle blurEffectStyle;
+@property(nonatomic, strong) CNPGridMenuItem *menuItem;
+@property(nonatomic, strong) UILabel *titleLabel;
+@property(nonatomic, strong) UIButton *circleButton;
+@property(nonatomic, strong) UIImageView *iconView;
+@property(nonatomic, strong) UIView *vibrancyView;
+@property(nonatomic, assign) CNPBlurEffectStyle blurEffectStyle;
 
-@property (nonatomic, weak) id <CNPGridMenuButtonDelegate> delegate;
+@property(nonatomic, weak) id<CNPGridMenuButtonDelegate> delegate;
 
 @end
 
@@ -48,18 +48,19 @@
 
 @end
 
-@interface CNPGridMenu () <CNPGridMenuButtonDelegate, UIGestureRecognizerDelegate>
+@interface CNPGridMenu ()<CNPGridMenuButtonDelegate, UIGestureRecognizerDelegate>
 
-@property (nonatomic, strong) UIView *blurView;
-@property (nonatomic, strong) NSMutableArray *buttons;
-@property (nonatomic, strong) CNPGridMenuFlowLayout *flowLayout;
-@property (nonatomic, strong) UITapGestureRecognizer *backgroundTapGestureRecognizer;
+@property(nonatomic, strong) UIView *blurView;
+@property(nonatomic, strong) NSMutableArray *buttons;
+@property(nonatomic, strong) CNPGridMenuFlowLayout *flowLayout;
+@property(nonatomic, strong) UITapGestureRecognizer *backgroundTapGestureRecognizer;
 
 @end
 
 @implementation CNPGridMenu
 
-- (instancetype)initWithMenuItems:(NSArray *)items {
+- (instancetype)initWithMenuItems:(NSArray *)items
+{
     self.flowLayout = [[CNPGridMenuFlowLayout alloc] init];
     self = [super initWithCollectionViewLayout:self.flowLayout];
     if (self) {
@@ -70,22 +71,23 @@
     return self;
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     self.collectionView.backgroundColor = [UIColor clearColor];
     self.collectionView.delaysContentTouches = NO;
     [self.collectionView registerClass:[CNPGridMenuCell class] forCellWithReuseIdentifier:@"GridMenuCell"];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated
+{
     [super viewWillAppear:animated];
     
     if (CNP_IS_IOS8) {
         UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:(UIBlurEffectStyle)self.blurEffectStyle];
         self.blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         self.collectionView.backgroundView = self.blurView;
-    }
-    else {
+    } else {
         UIImageView *backgroundBlurImage = ((UIImageView *)self.collectionView.backgroundView);
         switch (self.blurEffectStyle) {
             case CNPBlurEffectStyleDark:
@@ -108,42 +110,47 @@
     [self.collectionView.backgroundView addGestureRecognizer:self.backgroundTapGestureRecognizer];
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle {
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
     return self.blurEffectStyle == CNPBlurEffectStyleDark ? UIStatusBarStyleLightContent : UIStatusBarStyleDefault;
 }
 
 #pragma mark - UICollectionView Delegate & DataSource
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    CNPGridMenuCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"GridMenuCell" forIndexPath:indexPath];
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    CNPGridMenuCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"GridMenuCell" forIndexPath:indexPath];
     CNPGridMenuItem *item;
-    if (indexPath.section==0) {
+    if (indexPath.section == 0) {
         item = [self.menuItems objectAtIndex:indexPath.row];
-    }else{
-        item = [self.menuItems objectAtIndex:indexPath.row+(self.menuItems.count/2)];
+    } else {
+        item = [self.menuItems objectAtIndex:indexPath.row + (self.menuItems.count / 2)];
     }
     cell.delegate = self;
     cell.blurEffectStyle = self.blurEffectStyle;
     cell.menuItem = item;
     cell.iconView.image = [item.icon imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-    cell.iconView.contentMode=UIViewContentModeCenter;
+    cell.iconView.contentMode = UIViewContentModeCenter;
     cell.titleLabel.text = item.title;
     cell.backgroundColor = [UIColor clearColor];
     cell.contentView.backgroundColor = [UIColor clearColor];
     return cell;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
     
-    return self.menuItems.count/2;
+    return self.menuItems.count / 2;
 }
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
     return 2;
 }
 
 #pragma mark - UITapGestureRecognizer Delegate
 
--(void) didTapOnBackgroundView:(id)sender {
+- (void)didTapOnBackgroundView:(id)sender
+{
     if ([self.delegate respondsToSelector:@selector(gridMenuDidTapOnBackground:)]) {
         [self.delegate gridMenuDidTapOnBackground:self];
     }
@@ -151,7 +158,8 @@
 
 #pragma mark - CNPGridMenuItem Delegate
 
-- (void)didTapOnGridMenuItem:(CNPGridMenuItem *)item {
+- (void)didTapOnGridMenuItem:(CNPGridMenuItem *)item
+{
     if ([self.delegate respondsToSelector:@selector(gridMenu:didTapOnItem:)]) {
         [self.delegate gridMenu:self didTapOnItem:item];
     }
@@ -165,12 +173,12 @@
 
 @implementation CNPGridMenuCell
 
-- (void)setupCell {
+- (void)setupCell
+{
     if (CNP_IS_IOS8) {
         UIVisualEffect *vibrancyEffect = [UIVibrancyEffect effectForBlurEffect:[UIBlurEffect effectWithStyle:(UIBlurEffectStyle)self.blurEffectStyle]];
         self.vibrancyView = [[UIVisualEffectView alloc] initWithEffect:vibrancyEffect];
-    }
-    else {
+    } else {
         self.vibrancyView = [[UIView alloc] initWithFrame:CGRectZero];
     }
     [self.contentView addSubview:self.vibrancyView];
@@ -178,77 +186,75 @@
     self.circleButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [self.circleButton setBackgroundColor:[UIColor clearColor]];
     self.circleButton.layer.borderWidth = 1.0f;
-    self.circleButton.layer.borderColor = self.blurEffectStyle == CNPBlurEffectStyleDark?[UIColor whiteColor].CGColor:[UIColor darkGrayColor].CGColor;
+    self.circleButton.layer.borderColor = self.blurEffectStyle == CNPBlurEffectStyleDark ? [UIColor whiteColor].CGColor : [UIColor darkGrayColor].CGColor;
     [self.circleButton addTarget:self action:@selector(buttonTouchDown:) forControlEvents:UIControlEventTouchDown];
     [self.circleButton addTarget:self action:@selector(buttonTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
     [self.circleButton addTarget:self action:@selector(buttonTouchUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
     if (CNP_IS_IOS8) {
-        //        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.circleButton];
-        [self.contentView addSubview:self.circleButton];
-        
-    }
-    else {
+        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.circleButton];
+    } else {
         [self.vibrancyView addSubview:self.circleButton];
     }
     
     self.iconView = [[UIImageView alloc] initWithFrame:CGRectZero];
-    self.iconView.tintColor = self.blurEffectStyle == CNPBlurEffectStyleDark?[UIColor whiteColor]:[UIColor darkGrayColor];
+    self.iconView.tintColor = self.blurEffectStyle == CNPBlurEffectStyleDark ? [UIColor whiteColor] : [UIColor darkGrayColor];
     [self.iconView setContentMode:UIViewContentModeCenter];
     if (CNP_IS_IOS8) {
         //        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.iconView];
         [self.contentView addSubview:self.iconView];
-    }
-    else {
+    } else {
         [self.vibrancyView addSubview:self.iconView];
     }
     
     self.titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     [self.titleLabel setFont:[UIFont fontWithName:@"AvenirNext-Medium" size:14]];
-    [self.titleLabel setTextColor:self.blurEffectStyle == CNPBlurEffectStyleDark?[UIColor whiteColor]:[UIColor darkGrayColor]];
+    [self.titleLabel setTextColor:self.blurEffectStyle == CNPBlurEffectStyleDark ? [UIColor whiteColor] : [UIColor darkGrayColor]];
     [self.titleLabel setNumberOfLines:2];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
     if (CNP_IS_IOS8) {
         [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.titleLabel];
-    }
-    else {
+    } else {
         [self.vibrancyView addSubview:self.titleLabel];
     }
 }
 
-- (void)setBlurEffectStyle:(CNPBlurEffectStyle)blurEffectStyle {
+- (void)setBlurEffectStyle:(CNPBlurEffectStyle)blurEffectStyle
+{
     _blurEffectStyle = blurEffectStyle;
     if (self.vibrancyView == nil) {
         [self setupCell];
     }
 }
 
-- (void)layoutSubviews {
+- (void)layoutSubviews
+{
     [super layoutSubviews];
     self.vibrancyView.frame = self.contentView.bounds;
-    [self.circleButton setFrame:CGRectMake(10, 0, self.contentView.bounds.size.width-20, self.contentView.bounds.size.width-20)];
-    [self.circleButton.layer setCornerRadius:self.circleButton.bounds.size.width/2];
+    [self.circleButton setFrame:CGRectMake(10, 0, self.contentView.bounds.size.width - 20, self.contentView.bounds.size.width - 20)];
+    [self.circleButton.layer setCornerRadius:self.circleButton.bounds.size.width / 2];
     [self.iconView setFrame:CGRectMake(0, 0, 40, 40)];
     self.iconView.center = self.circleButton.center;
-    [self.titleLabel setFrame:CGRectMake(0, CGRectGetMaxY(self.circleButton.bounds), self.contentView.bounds.size.width, self.contentView.bounds.size.height - CGRectGetMaxY(self.circleButton.bounds))];
+    [self.titleLabel setFrame:CGRectMake(0, CGRectGetMaxY(self.circleButton.bounds), self.contentView.bounds.size.width,
+                                         self.contentView.bounds.size.height - CGRectGetMaxY(self.circleButton.bounds))];
 }
 
-- (void)buttonTouchDown:(UIButton *)button {
+- (void)buttonTouchDown:(UIButton *)button
+{
     if (self.blurEffectStyle == CNPBlurEffectStyleDark) {
         self.iconView.tintColor = [UIColor blackColor];
         button.backgroundColor = [UIColor whiteColor];
-    }
-    else {
+    } else {
         self.iconView.tintColor = [UIColor whiteColor];
         button.backgroundColor = [UIColor darkGrayColor];
     }
 }
 
-- (void)buttonTouchUpInside:(UIButton *)button {
+- (void)buttonTouchUpInside:(UIButton *)button
+{
     if (self.blurEffectStyle == CNPBlurEffectStyleDark) {
         self.iconView.tintColor = [UIColor whiteColor];
         button.backgroundColor = [UIColor clearColor];
-    }
-    else {
+    } else {
         self.iconView.tintColor = [UIColor darkGrayColor];
         button.backgroundColor = [UIColor clearColor];
     }
@@ -260,12 +266,12 @@
     }
 }
 
-- (void)buttonTouchUpOutside:(UIButton *)button {
+- (void)buttonTouchUpOutside:(UIButton *)button
+{
     if (self.blurEffectStyle == CNPBlurEffectStyleDark) {
         self.iconView.tintColor = [UIColor whiteColor];
         button.backgroundColor = [UIColor clearColor];
-    }
-    else {
+    } else {
         self.iconView.tintColor = [UIColor darkGrayColor];
         button.backgroundColor = [UIColor clearColor];
     }
@@ -279,28 +285,28 @@
 
 - (id)init
 {
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         self.itemSize = CGSizeMake(90, 110);
         self.minimumInteritemSpacing = 5;
         self.minimumLineSpacing = 5;
         self.scrollDirection = UICollectionViewScrollDirectionVertical;
-        self.sectionInset = UIEdgeInsetsMake(10,self.itemSize.width, 10, self.itemSize.width);
+        self.sectionInset = UIEdgeInsetsMake(10, self.itemSize.width, 10, self.itemSize.width);
     }
     return self;
 }
 
--(NSArray*)layoutAttributesForElementsInRect:(CGRect)rect {
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
     
-    NSArray* array = [super layoutAttributesForElementsInRect:rect];
+    NSArray *array = [super layoutAttributesForElementsInRect:rect];
     
-    UICollectionViewLayoutAttributes* att = [array lastObject];
-    if (att){
+    UICollectionViewLayoutAttributes *att = [array lastObject];
+    if (att) {
         CGFloat lastY = att.frame.origin.y + att.frame.size.height;
         CGFloat diff = self.collectionView.frame.size.height - lastY;
         
-        if (diff > 0){
-            UIEdgeInsets contentInsets = UIEdgeInsetsMake(diff/2, 0.0, 0.0, 0.0);
+        if (diff > 0) {
+            UIEdgeInsets contentInsets = UIEdgeInsetsMake(diff / 2, 0.0, 0.0, 0.0);
             self.collectionView.contentInset = contentInsets;
         }
     }
@@ -315,8 +321,9 @@
 
 @dynamic gridMenu;
 
-- (void)presentGridMenu:(CNPGridMenu *)menu animated:(BOOL)flag completion:(void (^)(void))completion {
-    [menu setModalPresentationStyle:CNP_IS_IOS8?UIModalPresentationOverCurrentContext:UIModalPresentationCurrentContext];
+- (void)presentGridMenu:(CNPGridMenu *)menu animated:(BOOL)flag completion:(void (^)(void))completion
+{
+    [menu setModalPresentationStyle:CNP_IS_IOS8 ? UIModalPresentationOverCurrentContext : UIModalPresentationCurrentContext];
     [menu setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
     menu.modalPresentationCapturesStatusBarAppearance = YES;
     
@@ -332,15 +339,18 @@
     [self presentViewController:menu animated:flag completion:completion];
 }
 
-- (void)dismissGridMenuAnimated:(BOOL)flag completion:(void (^)(void))completion {
+- (void)dismissGridMenuAnimated:(BOOL)flag completion:(void (^)(void))completion
+{
     [self dismissViewControllerAnimated:flag completion:completion];
 }
 
-- (void)setGridMenu:(CNPGridMenu *)gridMenu {
+- (void)setGridMenu:(CNPGridMenu *)gridMenu
+{
     objc_setAssociatedObject(self, @selector(gridMenu), gridMenu, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (CNPGridMenu *)gridMenu {
+- (CNPGridMenu *)gridMenu
+{
     return objc_getAssociatedObject(self, @selector(gridMenu));
 }
 
@@ -366,23 +376,26 @@
     return [self applyBlurWithRadius:20 tintColor:tintColor saturationDeltaFactor:1.8 maskImage:nil];
 }
 
-- (UIImage *)applyBlurWithRadius:(CGFloat)blurRadius tintColor:(UIColor *)tintColor saturationDeltaFactor:(CGFloat)saturationDeltaFactor maskImage:(UIImage *)maskImage
+- (UIImage *)applyBlurWithRadius:(CGFloat)blurRadius
+                       tintColor:(UIColor *)tintColor
+           saturationDeltaFactor:(CGFloat)saturationDeltaFactor
+                       maskImage:(UIImage *)maskImage
 {
     // check pre-conditions
     if (self.size.width < 1 || self.size.height < 1) {
-        NSLog (@"*** error: invalid size: (%.2f x %.2f). Both dimensions must be >= 1: %@", self.size.width, self.size.height, self);
+        NSLog(@"*** error: invalid size: (%.2f x %.2f). Both dimensions must be >= 1: %@", self.size.width, self.size.height, self);
         return nil;
     }
     if (!self.CGImage) {
-        NSLog (@"*** error: image must be backed by a CGImage: %@", self);
+        NSLog(@"*** error: image must be backed by a CGImage: %@", self);
         return nil;
     }
     if (maskImage && !maskImage.CGImage) {
-        NSLog (@"*** error: maskImage must be backed by a CGImage: %@", maskImage);
+        NSLog(@"*** error: maskImage must be backed by a CGImage: %@", maskImage);
         return nil;
     }
     
-    CGRect imageRect = { CGPointZero, self.size };
+    CGRect imageRect = {CGPointZero, self.size};
     UIImage *effectImage = self;
     
     BOOL hasBlur = blurRadius > __FLT_EPSILON__;
@@ -395,17 +408,17 @@
         CGContextDrawImage(effectInContext, imageRect, self.CGImage);
         
         vImage_Buffer effectInBuffer;
-        effectInBuffer.data     = CGBitmapContextGetData(effectInContext);
-        effectInBuffer.width    = CGBitmapContextGetWidth(effectInContext);
-        effectInBuffer.height   = CGBitmapContextGetHeight(effectInContext);
+        effectInBuffer.data = CGBitmapContextGetData(effectInContext);
+        effectInBuffer.width = CGBitmapContextGetWidth(effectInContext);
+        effectInBuffer.height = CGBitmapContextGetHeight(effectInContext);
         effectInBuffer.rowBytes = CGBitmapContextGetBytesPerRow(effectInContext);
         
         UIGraphicsBeginImageContextWithOptions(self.size, NO, [[UIScreen mainScreen] scale]);
         CGContextRef effectOutContext = UIGraphicsGetCurrentContext();
         vImage_Buffer effectOutBuffer;
-        effectOutBuffer.data     = CGBitmapContextGetData(effectOutContext);
-        effectOutBuffer.width    = CGBitmapContextGetWidth(effectOutContext);
-        effectOutBuffer.height   = CGBitmapContextGetHeight(effectOutContext);
+        effectOutBuffer.data = CGBitmapContextGetData(effectOutContext);
+        effectOutBuffer.width = CGBitmapContextGetWidth(effectOutContext);
+        effectOutBuffer.height = CGBitmapContextGetHeight(effectOutContext);
         effectOutBuffer.rowBytes = CGBitmapContextGetBytesPerRow(effectOutContext);
         
         BOOL resultImageAtInputBuffer = YES;
@@ -413,9 +426,9 @@
             CGFloat inputRadius = blurRadius * [[UIScreen mainScreen] scale];
             NSUInteger radius = floor(inputRadius * 3. * sqrt(2 * M_PI) / 4 + 0.5);
             if (radius % 2 != 1) {
-                radius += 1; // force radius to be odd so that the three box-blur methodology works.
+                radius += 1;  // force radius to be odd so that the three box-blur methodology works.
             }
-            for (int i = 0; i+1 < 3; i+=2) {
+            for (int i = 0; i + 1 < 3; i += 2) {
                 vImageBoxConvolve_ARGB8888(&effectInBuffer, &effectOutBuffer, NULL, 0, 0, (uint32_t)radius, (uint32_t)radius, 0, kvImageEdgeExtend);
                 vImageBoxConvolve_ARGB8888(&effectOutBuffer, &effectInBuffer, NULL, 0, 0, (uint32_t)radius, (uint32_t)radius, 0, kvImageEdgeExtend);
             }
@@ -427,21 +440,18 @@
         if (hasSaturationChange) {
             CGFloat s = saturationDeltaFactor;
             CGFloat floatingPointSaturationMatrix[] = {
-                0.0722 + 0.9278 * s,  0.0722 - 0.0722 * s,  0.0722 - 0.0722 * s,  0,
-                0.7152 - 0.7152 * s,  0.7152 + 0.2848 * s,  0.7152 - 0.7152 * s,  0,
-                0.2126 - 0.2126 * s,  0.2126 - 0.2126 * s,  0.2126 + 0.7873 * s,  0,
-                0,                    0,                    0,  1,
+                0.0722 + 0.9278 * s, 0.0722 - 0.0722 * s, 0.0722 - 0.0722 * s, 0, 0.7152 - 0.7152 * s, 0.7152 + 0.2848 * s, 0.7152 - 0.7152 * s, 0,
+                0.2126 - 0.2126 * s, 0.2126 - 0.2126 * s, 0.2126 + 0.7873 * s, 0, 0, 0, 0, 1,
             };
             const int32_t divisor = 256;
-            NSUInteger matrixSize = sizeof(floatingPointSaturationMatrix)/sizeof(floatingPointSaturationMatrix[0]);
+            NSUInteger matrixSize = sizeof(floatingPointSaturationMatrix) / sizeof(floatingPointSaturationMatrix[0]);
             int16_t saturationMatrix[matrixSize];
             for (NSUInteger i = 0; i < matrixSize; ++i) {
                 saturationMatrix[i] = (int16_t)roundf(floatingPointSaturationMatrix[i] * divisor);
             }
             if (hasBlur ^ resultImageAtInputBuffer) {
                 vImageMatrixMultiply_ARGB8888(&effectOutBuffer, &effectInBuffer, saturationMatrix, divisor, NULL, NULL, kvImageNoFlags);
-            }
-            else {
+            } else {
                 vImageMatrixMultiply_ARGB8888(&effectInBuffer, &effectOutBuffer, saturationMatrix, divisor, NULL, NULL, kvImageNoFlags);
             }
         }
