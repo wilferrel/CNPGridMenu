@@ -116,11 +116,17 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     CNPGridMenuCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"GridMenuCell" forIndexPath:indexPath];
-    CNPGridMenuItem *item = [self.menuItems objectAtIndex:indexPath.row];
+    CNPGridMenuItem *item;
+    if (indexPath.section==0) {
+        item = [self.menuItems objectAtIndex:indexPath.row];
+    }else{
+        item = [self.menuItems objectAtIndex:indexPath.row+(self.menuItems.count/2)];
+    }
     cell.delegate = self;
     cell.blurEffectStyle = self.blurEffectStyle;
     cell.menuItem = item;
     cell.iconView.image = [item.icon imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    cell.iconView.contentMode=UIViewContentModeCenter;
     cell.titleLabel.text = item.title;
     cell.backgroundColor = [UIColor clearColor];
     cell.contentView.backgroundColor = [UIColor clearColor];
@@ -128,10 +134,14 @@
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.menuItems.count;
+    
+    return self.menuItems.count/2;
+}
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return 2;
 }
 
-#pragma mark - UITapGestureRecognizer Delegate 
+#pragma mark - UITapGestureRecognizer Delegate
 
 -(void) didTapOnBackgroundView:(id)sender {
     if ([self.delegate respondsToSelector:@selector(gridMenuDidTapOnBackground:)]) {
@@ -173,7 +183,9 @@
     [self.circleButton addTarget:self action:@selector(buttonTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
     [self.circleButton addTarget:self action:@selector(buttonTouchUpOutside:) forControlEvents:UIControlEventTouchUpOutside];
     if (CNP_IS_IOS8) {
-        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.circleButton];
+        //        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.circleButton];
+        [self.contentView addSubview:self.circleButton];
+        
     }
     else {
         [self.vibrancyView addSubview:self.circleButton];
@@ -181,16 +193,17 @@
     
     self.iconView = [[UIImageView alloc] initWithFrame:CGRectZero];
     self.iconView.tintColor = self.blurEffectStyle == CNPBlurEffectStyleDark?[UIColor whiteColor]:[UIColor darkGrayColor];
-    [self.iconView setContentMode:UIViewContentModeScaleAspectFit];
+    [self.iconView setContentMode:UIViewContentModeCenter];
     if (CNP_IS_IOS8) {
-        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.iconView];
+        //        [((UIVisualEffectView *)self.vibrancyView).contentView addSubview:self.iconView];
+        [self.contentView addSubview:self.iconView];
     }
     else {
         [self.vibrancyView addSubview:self.iconView];
     }
     
     self.titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    [self.titleLabel setFont:[UIFont systemFontOfSize:14]];
+    [self.titleLabel setFont:[UIFont fontWithName:@"AvenirNext-Medium" size:14]];
     [self.titleLabel setTextColor:self.blurEffectStyle == CNPBlurEffectStyleDark?[UIColor whiteColor]:[UIColor darkGrayColor]];
     [self.titleLabel setNumberOfLines:2];
     [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
@@ -260,7 +273,7 @@
 
 @end
 
-#pragma mark - CNPGridMenuFlowLayout 
+#pragma mark - CNPGridMenuFlowLayout
 
 @implementation CNPGridMenuFlowLayout
 
@@ -269,10 +282,10 @@
     if (self = [super init])
     {
         self.itemSize = CGSizeMake(90, 110);
-        self.minimumInteritemSpacing = 10;
-        self.minimumLineSpacing = 10;
+        self.minimumInteritemSpacing = 5;
+        self.minimumLineSpacing = 5;
         self.scrollDirection = UICollectionViewScrollDirectionVertical;
-        self.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10);
+        self.sectionInset = UIEdgeInsetsMake(10,self.itemSize.width, 10, self.itemSize.width);
     }
     return self;
 }
